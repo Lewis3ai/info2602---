@@ -52,13 +52,19 @@
 </style>
 {% endblock %}
 
+
+<div class="col m3 list-container collection" style="max-height: 88vh;">
+    {% for pokemon in all_pokemon %}
+        <a id="poke-{{ pokemon.id }}" href="{{ url_for('home_page', pokemon_id=pokemon.id) }}" class="collection-item  {% if pokemon.id == selected_pokemon.id %} active {% endif %}">{{pokemon.name.strip()}}</a>
+    {% endfor %}
+
 {% block content %}
 <div class="row">
     <!-- Pokémon List -->
-    <div class="col m3 pokemon-list collection">
+    <div class="col m3 pokemon-list collection" style="max-height: 88vh;">
         <p class="text-center"><strong>Available Pokémon</strong></p>
         {% for pokemon in pokemon_list %}
-            <a href="{{ url_for('home_page', pokemon_id=pokemon.id) }}" 
+        <a id="poke-{{ pokemon.id }}" href="{{ url_for('home_page', pokemon_id=pokemon.id) }}" class="collection-item  {% if pokemon.id == selected_pokemon.id %} active {% endif %}">{{pokemon.name.strip()}}</a>
                class="collection-item {% if pokemon.id == selected_pokemon.id %}active{% endif %}">
                 <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{{ pokemon.id }}.png"
                      alt="{{ pokemon.name }}" class="pokemon-img">
