@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% block title %} Pokémon Trainer Dashboard {% endblock %}
+{% block title %} Home {% endblock %}
 
 {% block page %} My Pokémon {% endblock %}
 
@@ -37,7 +37,7 @@
         {% for pokemon in pokemon_list %}
             <a href="{{ url_for('home_page', pokemon_id=pokemon.id) }}" 
                class="collection-item {% if pokemon.id == selected_pokemon.id %}active{% endif %}">
-                {{ pokemon.name }}
+                {{ pokemon.name | trim }}
             </a>
         {% endfor %}
     </div>
@@ -45,7 +45,7 @@
     <!-- Selected Pokémon Details -->
     <div class="col m3">
         <p class="text-center"><strong>Selected Pokémon</strong></p>
-        <div id="pokemon-detail">
+        <div id="poke-{{ selected_pokemon.id }}">
             {% if selected_pokemon %}
                 <table class="pokemon-table">
                     <tr><td><strong>Name:</strong></td><td>{{ selected_pokemon.name }}</td></tr>
@@ -80,7 +80,7 @@
                         <td>{{ pokemon.pokemon.name }}</td>
                         <td>
                             <form method="POST" action="{{ url_for('rename_action', pokemon_id=pokemon.id) }}">
-                                <input type="text" name="name" value="{{ pokemon.name }}" required>
+                                <input type="text" name="name" id="pokemon_name" value="{{ pokemon.name }}" required>
                                 <button type="submit" class="btn-small blue">Rename</button>
                             </form>
                         </td>
