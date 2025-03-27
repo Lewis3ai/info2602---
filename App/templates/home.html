@@ -1,62 +1,99 @@
 {% extends "layout.html" %}
 
-{% block title %}{% endblock %}
+{% block title %} Pokémon Trainer Dashboard {% endblock %}
 
-{% block page %}{% endblock %}
+{% block page %} My Pokémon {% endblock %}
 
-{% block link%}
+{% block link %}
 <ul id="nav-mobile" class="right">
     <li><a href="/logout">Logout</a></li>
 </ul>
 {% endblock %}
 
-{% block styles%}
-
-    td{
-        padding: 2px;
-    }
-
-    .collection .collection-item.active{
+{% block styles %}
+<style>
+    .collection .collection-item.active {
         background-color: #E53935;
     }
+    .pokemon-list {
+        max-height: 88vh;
+        overflow-y: auto;
+    }
+    .pokemon-table th, .pokemon-table td {
+        padding: 8px;
+        text-align: left;
+    }
+    .btn-small {
+        margin-right: 5px;
+    }
+</style>
 {% endblock %}
-
 
 {% block content %}
 <div class="row">
-    <div class="col m3 list-container collection" style="max-height: 88vh;">
-  
+    <!-- Pokémon List -->
+    <div class="col m3 pokemon-list collection">
+        <p class="text-center"><strong>Available Pokémon</strong></p>
+        {% for pokemon in pokemon_list %}
+            <a href="{{ url_for('home_page', pokemon_id=pokemon.id) }}" 
+               class="collection-item {% if pokemon.id == selected_pokemon.id %}active{% endif %}">
+                {{ pokemon.name }}
+            </a>
+        {% endfor %}
     </div>
-    
+
+    <!-- Selected Pokémon Details -->
     <div class="col m3">
-
-            <p class="text-center">Selected Pokemon</p>
-
-            <div id="pokemon-detail">
-                 <!-- Show pokemon details here -->
-            </div>
-
+        <p class="text-center"><strong>Selected Pokémon</strong></p>
+        <div id="pokemon-detail">
+            {% if selected_pokemon %}
+                <table class="pokemon-table">
+                    <tr><td><strong>Name:</strong></td><td>{{ selected_pokemon.name }}</td></tr>
+                    <tr><td><strong>Attack:</strong></td><td>{{ selected_pokemon.attack }}</td></tr>
+                    <tr><td><strong>Defense:</strong></td><td>{{ selected_pokemon.defense }}</td></tr>
+                    <tr><td><strong>Speed:</strong></td><td>{{ selected_pokemon.speed }}</td></tr>
+                    <tr><td><strong>Type:</strong></td><td>{{ selected_pokemon.type1 }}{% if selected_pokemon.type2 %}, {{ selected_pokemon.type2 }}{% endif %}</td></tr>
+                </table>
+                <form method="POST" action="{{ url_for('capture_action', pokemon_id=selected_pokemon.id) }}">
+                    <button type="submit" class="btn red">Capture</button>
+                </form>
+            {% else %}
+                <p>No Pokémon selected.</p>
+            {% endif %}
+        </div>
     </div>
 
-    <div class="col m6" >
-        <p class="text-center">Your Pokemon</p>
-        <table class="responsive-table" id="pokemon-table">
-            <!-- Captured pokemon content here -->
+    <!-- User's Pokémon Table -->
+    <div class="col m6">
+        <p class="text-center"><strong>Your Pokémon</strong></p>
+        <table class="responsive-table pokemon-table">
             <thead>
                 <tr>
-                    <th>Pokemon</th>
-                    <th>Name</th>
+                    <th>Pokémon</th>
+                    <th>Nickname</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-              <!-- show captured pokemon here with controls to rename and release for each pokemon -->
+                {% for pokemon in user_pokemon %}
+                    <tr>
+                        <td>{{ pokemon.pokemon.name }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('rename_action', pokemon_id=pokemon.id) }}">
+                                <input type="text" name="name" value="{{ pokemon.name }}" required>
+                                <button type="submit" class="btn-small blue">Rename</button>
+                            </form>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('release_action', pokemon_id=pokemon.id) }}" 
+                               class="btn-small red">Release</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="3">No Pokémon captured yet.</td></tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
-
 </div>
-
-
-
 {% endblock %}
