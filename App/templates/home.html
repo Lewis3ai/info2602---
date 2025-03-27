@@ -26,6 +26,12 @@
     .btn-small {
         margin-right: 5px;
     }
+    .pokemon-img {
+        width: 50px;
+        height: 50px;
+        vertical-align: middle;
+        margin-right: 10px;
+    }
 </style>
 {% endblock %}
 
@@ -37,6 +43,8 @@
         {% for pokemon in pokemon_list %}
             <a href="{{ url_for('home_page', pokemon_id=pokemon.id) }}" 
                class="collection-item {% if pokemon.id == selected_pokemon.id %}active{% endif %}">
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{{ pokemon.id }}.png"
+                     alt="{{ pokemon.name }}" class="pokemon-img">
                 {{ pokemon.name | trim }}
             </a>
         {% endfor %}
@@ -47,6 +55,8 @@
         <p class="text-center"><strong>Selected Pokémon</strong></p>
         <div id="poke-{{ selected_pokemon.id }}">
             {% if selected_pokemon %}
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{{ selected_pokemon.id }}.png"
+                     alt="{{ selected_pokemon.name }}" class="pokemon-img">
                 <table class="pokemon-table">
                     <tr><td><strong>Name:</strong></td><td>{{ selected_pokemon.name }}</td></tr>
                     <tr><td><strong>Attack:</strong></td><td>{{ selected_pokemon.attack }}</td></tr>
@@ -77,7 +87,11 @@
             <tbody>
                 {% for pokemon in user_pokemon %}
                     <tr>
-                        <td>{{ pokemon.pokemon.name }}</td>
+                        <td>
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{{ pokemon.pokemon.id }}.png"
+                                 alt="{{ pokemon.pokemon.name }}" class="pokemon-img">
+                            {{ pokemon.pokemon.name }}
+                        </td>
                         <td>
                             <form method="POST" action="{{ url_for('rename_action', pokemon_id=pokemon.id) }}">
                                 <input type="text" name="name" id="pokemon_name" value="{{ pokemon.name }}" required>
