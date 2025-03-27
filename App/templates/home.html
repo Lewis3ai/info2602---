@@ -27,10 +27,27 @@
         margin-right: 5px;
     }
     .pokemon-img {
-        width: 50px;
-        height: 50px;
+        width: 100px;
+        height: 100px;
         vertical-align: middle;
         margin-right: 10px;
+    }
+    .pokemon-details {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .capture-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .capture-form input {
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    .action-buttons {
+        display: flex;
+        gap: 10px;
     }
 </style>
 {% endblock %}
@@ -53,7 +70,7 @@
     <!-- Selected Pokémon Details -->
     <div class="col m3">
         <p class="text-center"><strong>Selected Pokémon</strong></p>
-        <div id="poke-{{ selected_pokemon.id }}">
+        <div id="poke-{{ selected_pokemon.id }}" class="pokemon-details">
             {% if selected_pokemon %}
                 <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{{ selected_pokemon.id }}.png"
                      alt="{{ selected_pokemon.name }}" class="pokemon-img">
@@ -64,9 +81,13 @@
                     <tr><td><strong>Speed:</strong></td><td>{{ selected_pokemon.speed }}</td></tr>
                     <tr><td><strong>Type:</strong></td><td>{{ selected_pokemon.type1 }}{% if selected_pokemon.type2 %}, {{ selected_pokemon.type2 }}{% endif %}</td></tr>
                 </table>
-                <form method="POST" action="{{ url_for('capture_action', pokemon_id=selected_pokemon.id) }}">
-                    <button type="submit" class="btn red">Capture</button>
+
+                <!-- Capture Form -->
+                <form method="POST" action="{{ url_for('capture_action', pokemon_id=selected_pokemon.id) }}" class="capture-form">
+                    <input type="text" name="name" placeholder="Enter Pokémon Name" required>
+                    <button type="submit" class="btn red" id="captureBtn">Capture</button>
                 </form>
+
             {% else %}
                 <p>No Pokémon selected.</p>
             {% endif %}
@@ -94,13 +115,12 @@
                         </td>
                         <td>
                             <form method="POST" action="{{ url_for('rename_action', pokemon_id=pokemon.id) }}">
-                                <input type="text" name="name" id="pokemon_name" value="{{ pokemon.name }}" required>
-                                <button type="submit" class="btn-small blue">Rename</button>
-                            </form>
+                                <input type="text" name="name" value="{{ pokemon.name }}" required>
                         </td>
-                        <td>
-                            <a href="{{ url_for('release_action', pokemon_id=pokemon.id) }}" 
-                               class="btn-small red">Release</a>
+                        <td class="action-buttons">
+                                <button type="submit" class="btn-small blue">Rename</button>
+                                <a href="{{ url_for('release_action', pokemon_id=pokemon.id) }}" class="btn-small red">Release</a>
+                            </form>
                         </td>
                     </tr>
                 {% else %}
