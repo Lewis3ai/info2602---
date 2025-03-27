@@ -145,30 +145,65 @@ def login_action():
         flash("Invalid credentials")
         return redirect(url_for("login_page"))
 
-@app.route("/pokemon/<int:pokemon_id>", methods=['POST'])
+@app.route("/home", methods=["GET"])
+@jwt_required()
+def home_view():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    pokemon_list = Pokemon.query.all()
+    selected_pokemon_id = request.args.get('pokemon_id', type=int)
+    selected_pokemon = Pokemon.query.get(selected_pokemon_id) if selected_pokemon_id else None
+    user_pokemon = UserPokemon.query.filter_by(user_id=user_id).all()
+
+    return render_template("home.html", 
+                           pokemon_list=pokemon_list, 
+                           selected_pokemon=selected_pokemon, 
+                           user_pokemon=user_pokemon)
+
+@app.route("/capture/<int:pokemon_id>", methods=["POST"])
 @jwt_required()
 def capture_action(pokemon_id):
-    user = User.query.get(get_jwt_identity())
-    user.catch_pokemon(pokemon_id, f"Pokemon-{pokemon_id}")
-    flash("Pokemon Captured!")
-    return redirect(url_for("home_page"))
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    pokemon = Pokemon.query.get(pokemon_id)
+    
+    if pokemon:
+        name = request.form["name"]
+        captured = UserPokemon(user_id=user.id, pokemon_id=pokemon.id, name=name)
+        db.session.add(captured)
+        db.session.commit()
+        flash(f"{name} captured successfully!")
 
-@app.route("/rename-pokemon/<int:pokemon_id>", methods=['POST'])
-@jwt_required()
-def rename_action(pokemon_id):
-    user = User.query.get(get_jwt_identity())
-    new_name = request.form["name"]
-    user.rename_pokemon(pokemon_id, new_name)
-    flash("Pokemon Renamed!")
-    return redirect(url_for("home_page"))
+    return redirect(url_for("home_page", pokemon_id=pokemon_id))
 
-@app.route("/release-pokemon/<int:pokemon_id>", methods=['GET'])
+@app.route("/release/<int:pokemon_id>")
 @jwt_required()
 def release_action(pokemon_id):
-    user = User.query.get(get_jwt_identity())
-    user.release_pokemon(pokemon_id)
-    flash("Pokemon Released!")
+    user_id = get_jwt_identity()
+    user_pokemon = UserPokemon.query.filter_by(user_id=user_id, id=pokemon_id).first()
+    
+    if user_pokemon:
+        db.session.delete(user_pokemon)
+        db.session.commit()
+        flash("Pokémon released!")
+
     return redirect(url_for("home_page"))
+
+@app.route("/rename/<int:pokemon_id>", methods=["POST"])
+@jwt_required()
+def rename_action(pokemon_id):
+    new_name = request.form["name"]
+    user_id = get_jwt_identity()
+    user_pokemon = UserPokemon.query.filter_by(user_id=user_id, id=pokemon_id).first()
+
+    if user_pokemon:
+        user_pokemon.name = new_name
+        db.session.commit()
+        flash("Pokémon renamed!")
+
+    return redirect(url_for("home_view"))
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080, debug=True)
